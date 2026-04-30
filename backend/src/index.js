@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const { orderRouter } = require('./routes/order.routes');
 const { tradeRouter } = require('./routes/trade.routes');
 const { marketRouter } = require('./routes/market.routes');
+const { notesRouter } = require('./routes/notes.routes');
 const { errorHandler } = require('./middleware/errorHandler');
 const { initializeWebSocket } = require('./events/websocket');
 const { initializeMatchingEngine } = require('./matching-engine/matchingEngine');
@@ -31,6 +32,7 @@ app.get('/health', (req, res) => {
 app.use('/api/orders', orderRouter);
 app.use('/api/trades', tradeRouter);
 app.use('/api/market', marketRouter);
+app.use('/api/notes', notesRouter);
 
 // Error handling
 app.use(errorHandler);
