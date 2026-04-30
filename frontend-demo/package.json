@@ -1,0 +1,9 @@
+{
+  "name": "@stockx/frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "echo 'No build needed'",
+    "preview": "vite preview"
+  }
+}

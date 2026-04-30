@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📝 Notes CRUD API</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .card h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1em;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1em;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-success {
+      background: #48bb78;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #38a169;
+      transform: translateY(-2px);
+    }
+
+    .btn-warning {
+      background: #ed8936;
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #dd6b20;
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: #f56565;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #e53e3e;
+      transform: translateY(-2px);
+    }
+
+    .btn-info {
+      background: #4299e1;
+      color: white;
+    }
+
+    .btn-info:hover {
+      background: #3182ce;
+      transform: translateY(-2px);
+    }
+
+    .results {
+      background: #f7fafc;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 5px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .status {
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .status.success {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .status.error {
+      background: #fed7d7;
+      color: #742a2a;
+    }
+
+    .status.loading {
+      background: #bee3f8;
+      color: #2c5282;
+    }
+
+    .notes-list {
+      display: grid;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .note-item {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 15px;
+      transition: all 0.3s;
+    }
+
+    .note-item:hover {
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .note-item h3 {
+      color: #2d3748;
+      margin-bottom: 8px;
+    }
+
+    .note-item p {
+      color: #718096;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .note-item .note-meta {
+      font-size: 0.85em;
+      color: #a0aec0;
+      margin-bottom: 10px;
+    }
+
+    .note-item .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .note-item button {
+      padding: 8px 12px;
+      font-size: 0.85em;
+    }
+
+    .api-url {
+      background: #edf2f7;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      color: #2d3748;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8em;
+      }
+
+      .card {
+        padding: 15px;
+      }
+
+      .button-group {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 Notes CRUD API</h1>
+
+    <!-- API Config -->
+    <div class="card">
+      <h2>⚙️ API Configuration</h2>
+      <div class="form-group">
+        <label>API URL:</label>
+        <input type="text" id="apiUrl" value="http://localhost:3001/api/notes" placeholder="Enter API URL">
+      </div>
+      <button class="btn-info" onclick="updateApiUrl()">Update API URL</button>
+      <div id="apiStatus" class="status" style="display:none;"></div>
+    </div>
+
+    <!-- Create Note -->
+    <div class="card">
+      <h2>✨ Create New Note</h2>
+      <div class="form-group">
+        <label>Title:</label>
+        <input type="text" id="title" placeholder="Enter note title" maxlength="100">
+      </div>
+      <div class="form-group">
+        <label>Content:</label>
+        <textarea id="content" placeholder="Enter note content"></textarea>
+      </div>
+      <button class="btn-primary" onclick="createNote()">Create Note</button>
+      <div id="createStatus" class="status" style="display:none;"></div>
+    </div>
+
+    <!-- Get All Notes -->
+    <div class="card">
+      <h2>📋 All Notes</h2>
+      <button class="btn-success" onclick="getAllNotes()">Load All Notes</button>
+      <div id="allNotesStatus" class="status" style="display:none;"></div>
+      <div id="allNotesList" class="notes-list"></div>
+    </div>
+
+    <!-- Get Note by ID -->
+    <div class="card">
+      <h2>🔍 Get Note by ID</h2>
+      <div class="form-group">
+        <label>Note ID:</label>
+        <input type="text" id="searchId" placeholder="Enter note ID">
+      </div>
+      <button class="btn-info" onclick="getNoteById()">Search Note</button>
+      <div id="searchStatus" class="status" style="display:none;"></div>
+      <div id="searchResults" class="results" style="display:none;"></div>
+    </div>
+
+    <!-- Update Note -->
+    <div class="card">
+      <h2>✏️ Update Note</h2>
+      <div class="form-group">
+        <label>Note ID:</label>
+        <input type="text" id="updateId" placeholder="Enter note ID to update">
+      </div>
+      <div class="form-group">
+        <label>New Title (optional):</label>
+        <input type="text" id="updateTitle" placeholder="Leave empty to keep current title">
+      </div>
+      <div class="form-group">
+        <label>New Content (optional):</label>
+        <textarea id="updateContent" placeholder="Leave empty to keep current content"></textarea>
+      </div>
+      <button class="btn-warning" onclick="updateNote()">Update Note</button>
+      <div id="updateStatus" class="status" style="display:none;"></div>
+    </div>
+
+    <!-- Delete Note -->
+    <div class="card">
+      <h2>🗑️ Delete Note</h2>
+      <div class="form-group">
+        <label>Note ID:</label>
+        <input type="text" id="deleteId" placeholder="Enter note ID to delete">
+      </div>
+      <button class="btn-danger" onclick="deleteNote()">Delete Note</button>
+      <div id="deleteStatus" class="status" style="display:none;"></div>
+    </div>
+
+    <!-- API Response -->
+    <div class="card">
+      <h2>📤 API Response</h2>
+      <div id="results" class="results">Waiting for API calls...</div>
+    </div>
+  </div>
+
+  <script>
+    let API_URL = 'http://localhost:3001/api/notes';
+
+    // Update API URL
+    function updateApiUrl() {
+      const newUrl = document.getElementById('apiUrl').value;
+      if (newUrl.trim()) {
+        API_URL = newUrl;
+        showStatus('apiStatus', 'API URL updated successfully!', 'success');
+      }
+    }
+
+    // Show status
+    function showStatus(elementId, message, type) {
+      const element = document.getElementById(elementId);
+      element.textContent = message;
+      element.className = `status ${type}`;
+      element.style.display = 'block';
+      if (type === 'success') {
+        setTimeout(() => element.style.display = 'none', 3000);
+      }
+    }
+
+    // Display results
+    function displayResults(data) {
+      document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+    }
+
+    // CREATE
+    async function createNote() {
+      try {
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+
+        if (!title || !content) {
+          showStatus('createStatus', '❌ Title and content are required!', 'error');
+          return;
+        }
+
+        showStatus('createStatus', '⏳ Creating note...', 'loading');
+
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, content })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showStatus('createStatus', '✅ Note created successfully!', 'success');
+          document.getElementById('title').value = '';
+          document.getElementById('content').value = '';
+          displayResults(data);
+        } else {
+          showStatus('createStatus', `❌ ${data.error}`, 'error');
+          displayResults(data);
+        }
+      } catch (error) {
+        showStatus('createStatus', `❌ Error: ${error.message}`, 'error');
+        displayResults({ error: error.message });
+      }
+    }
+
+    // READ ALL
+    async function getAllNotes() {
+      try {
+        showStatus('allNotesStatus', '⏳ Loading notes...', 'loading');
+
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        if (res.ok) {
+          showStatus('allNotesStatus', `✅ Loaded ${data.total} notes!`, 'success');
+          displayNotesList(data.notes);
+          displayResults(data);
+        } else {
+          showStatus('allNotesStatus', `❌ ${data.error}`, 'error');
+          displayResults(data);
+        }
+      } catch (error) {
+        showStatus('allNotesStatus', `❌ Error: ${error.message}`, 'error');
+        displayResults({ error: error.message });
+      }
+    }
+
+    // Display notes list
+    function displayNotesList(notes) {
+      const container = document.getElementById('allNotesList');
+      container.innerHTML = '';
+
+      if (notes.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#a0aec0;">No notes yet</p>';
+        return;
+      }
+
+      notes.forEach(note => {
+        const noteEl = document.createElement('div');
+        noteEl.className = 'note-item';
+        noteEl.innerHTML = `
+          <h3>${escapeHtml(note.title)}</h3>
+          <p>${escapeHtml(note.content)}</p>
+          <div class="note-meta">
+            ID: ${note.id} | Created: ${new Date(note.createdAt).toLocaleString()}
+          </div>
+          <div class="actions">
+            <button class="btn-info" onclick="loadNoteForUpdate('${note.id}', '${escapeHtml(note.title).replace(/'/g, "\\'")}', '${escapeHtml(note.content).replace(/'/g, "\\'")}')" style="padding:8px 12px;font-size:0.85em;">Edit</button>
+            <button class="btn-danger" onclick="deleteNoteById('${note.id}')" style="padding:8px 12px;font-size:0.85em;">Delete</button>
+          </div>
+        `;
+        container.appendChild(noteEl);
+      });
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // READ BY ID
+    async function getNoteById() {
+      try {
+        const id = document.getElementById('searchId').value;
+
+        if (!id) {
+          showStatus('searchStatus', '❌ Please enter a note ID!', 'error');
+          return;
+        }
+
+        showStatus('searchStatus', '⏳ Searching...', 'loading');
+
+        const res = await fetch(`${API_URL}/${id}`);
+        const data = await res.json();
+
+        if (res.ok) {
+          showStatus('searchStatus', '✅ Note found!', 'success');
+          displayResults(data);
+        } else {
+          showStatus('searchStatus', `❌ ${data.error}`, 'error');
+          displayResults(data);
+        }
+      } catch (error) {
+        showStatus('searchStatus', `❌ Error: ${error.message}`, 'error');
+        displayResults({ error: error.message });
+      }
+    }
+
+    // Load note for update
+    function loadNoteForUpdate(id, title, content) {
+      document.getElementById('updateId').value = id;
+      document.getElementById('updateTitle').value = title;
+      document.getElementById('updateContent').value = content;
+      document.getElementById('updateTitle').focus();
+      window.scrollTo({ top: document.querySelector('[id="updateId"]').offsetTop - 200, behavior: 'smooth' });
+    }
+
+    // UPDATE
+    async function updateNote() {
+      try {
+        const id = document.getElementById('updateId').value;
+        const title = document.getElementById('updateTitle').value;
+        const content = document.getElementById('updateContent').value;
+
+        if (!id) {
+          showStatus('updateStatus', '❌ Please enter a note ID!', 'error');
+          return;
+        }
+
+        if (!title && !content) {
+          showStatus('updateStatus', '❌ Please enter title or content!', 'error');
+          return;
+        }
+
+        showStatus('updateStatus', '⏳ Updating...', 'loading');
+
+        const body = {};
+        if (title) body.title = title;
+        if (content) body.content = content;
+
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showStatus('updateStatus', '✅ Note updated successfully!', 'success');
+          document.getElementById('updateId').value = '';
+          document.getElementById('updateTitle').value = '';
+          document.getElementById('updateContent').value = '';
+          displayResults(data);
+        } else {
+          showStatus('updateStatus', `❌ ${data.error}`, 'error');
+          displayResults(data);
+        }
+      } catch (error) {
+        showStatus('updateStatus', `❌ Error: ${error.message}`, 'error');
+        displayResults({ error: error.message });
+      }
+    }
+
+    // DELETE
+    async function deleteNote() {
+      try {
+        const id = document.getElementById('deleteId').value;
+
+        if (!id) {
+          showStatus('deleteStatus', '❌ Please enter a note ID!', 'error');
+          return;
+        }
+
+        if (!confirm(`Are you sure you want to delete note ${id}?`)) {
+          return;
+        }
+
+        showStatus('deleteStatus', '⏳ Deleting...', 'loading');
+
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: 'DELETE'
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showStatus('deleteStatus', '✅ Note deleted successfully!', 'success');
+          document.getElementById('deleteId').value = '';
+          displayResults(data);
+        } else {
+          showStatus('deleteStatus', `❌ ${data.error}`, 'error');
+          displayResults(data);
+        }
+      } catch (error) {
+        showStatus('deleteStatus', `❌ Error: ${error.message}`, 'error');
+        displayResults({ error: error.message });
+      }
+    }
+
+    // Delete from list
+    async function deleteNoteById(id) {
+      if (confirm(`Delete note ${id}?`)) {
+        document.getElementById('deleteId').value = id;
+        deleteNote();
+        getAllNotes();
+      }
+    }
+
+    // Test connection on load
+    window.addEventListener('load', () => {
+      console.log('📝 Notes API Frontend loaded');
+      console.log(`📍 API URL: ${API_URL}`);
+    });
+  </script>
+</body>
+</html>
