@@ -269,7 +269,7 @@
       <h2>⚙️ API Configuration</h2>
       <div class="form-group">
         <label>API URL:</label>
-        <input type="text" id="apiUrl" value="https://stockx-backend-oasys-test.vercel.app/notes" placeholder="Enter API URL">
+        <input type="text" id="apiUrl" value="https://stockx-backend-oasys-test.vercel.app/api/notes" placeholder="Enter API URL">
       </div>
       <button class="btn-info" onclick="updateApiUrl()">Update API URL</button>
       <div id="apiStatus" class="status" style="display:none;"></div>
@@ -348,7 +348,7 @@
   </div>
 
   <script>
-    let API_URL = 'http://localhost:3001/api/notes';
+    let API_URL = 'https://stockx-backend-oasys-test.vercel.app/api/notes';
 
     // Update API URL
     function updateApiUrl() {
