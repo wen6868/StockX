@@ -10,7 +10,6 @@
     "ai-services"
   ],
   "scripts": {
-    "prepare": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
